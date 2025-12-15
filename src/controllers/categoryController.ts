@@ -1,118 +1,64 @@
-import { Request, Response } from 'express';
-import db from '../database/connection';
-import { CreateCategoryDto, UpdateCategoryDto } from '../types';
+import { type Request, type Response } from 'express';
+import { getAllCategories, createCategory, updateCategory, deleteCategory, getCategoryById } from '../models/categoryModel.js';
 
-export const createCategory = async (req: Request, res: Response) => {
-  try {
-    const { name }: CreateCategoryDto = req.body;
-
-    if (!name) {
-      return res.status(400).json({ error: 'Name is required' });
+export const getAllCategoriesController = async (req: Request, res: Response) => {
+    try{
+        const { showDeleted } = req.query;
+        const items = await getAllCategories(showDeleted as "true" | "false" | "onlyDeleted" | undefined);
+        res.status(200).json(items);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to retrieve categories" });
     }
-
-    const [category] = await db('categories')
-      .insert({ name })
-      .returning('*');
-
-    res.status(201).json(category);
-  } catch (error) {
-    console.error('Error creating category:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
 };
 
-export const getCategories = async (req: Request, res: Response) => {
-  try {
-    const { showDeleted, onlyDeleted } = req.query;
-
-    let query = db('categories').select('*');
-
-    // Soft delete filtreleme
-    if (onlyDeleted === 'true') {
-      query = query.whereNotNull('deleted_at');
-    } else if (showDeleted !== 'true') {
-      query = query.whereNull('deleted_at');
+export const createCategoryController = async (req: Request, res: Response) => {
+    try {
+        const { name } = req.body;
+        const item = await createCategory(name);
+        res.status(201).json(item);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to create category" });
     }
-
-    const categories = await query.orderBy('created_at', 'desc');
-
-    res.json(categories);
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
 };
 
-export const getCategoryById = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-
-    const category = await db('categories')
-      .where({ id })
-      .whereNull('deleted_at')
-      .first();
-
-    if (!category) {
-      return res.status(404).json({ error: 'Category not found' });
+export const updateCategoryController = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const item = await updateCategory(Number(id), req.body);
+        if (item.length === 0){
+            res.status(404).json({message: "Category not found"})
+        }
+        res.status(200).json(item);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to update category" });
     }
-
-    res.json(category);
-  } catch (error) {
-    console.error('Error fetching category:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
 };
 
-export const updateCategory = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const updateData: UpdateCategoryDto = req.body;
-
-    // Önce kategoriyi kontrol et (soft delete kontrolü)
-    const category = await db('categories')
-      .where({ id })
-      .whereNull('deleted_at')
-      .first();
-
-    if (!category) {
-      return res.status(404).json({ error: 'Category not found' });
+export const deleteCategoryController = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const deletedItem = await deleteCategory(Number(id));
+        res.status(204).json(deletedItem);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to delete category" });
     }
-
-    const [updated] = await db('categories')
-      .where({ id })
-      .whereNull('deleted_at')
-      .update(updateData)
-      .returning('*');
-
-    res.json(updated);
-  } catch (error) {
-    console.error('Error updating category:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
 };
 
-export const deleteCategory = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-
-    // Önce kategoriyi kontrol et (soft delete kontrolü)
-    const category = await db('categories')
-      .where({ id })
-      .whereNull('deleted_at')
-      .first();
-
-    if (!category) {
-      return res.status(404).json({ error: 'Category not found' });
+export const getCategoryByIdController = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const item = await getCategoryById(Number(id));
+        if (!item) {
+            res.status(404).json({ error: "Category not found" });
+        } else {
+            res.status(200).json(item);
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to retrieve category" });
     }
-
-    await db('categories')
-      .where({ id })
-      .update({ deleted_at: new Date() });
-
-    res.status(204).send();
-  } catch (error) {
-    console.error('Error deleting category:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
-
+}

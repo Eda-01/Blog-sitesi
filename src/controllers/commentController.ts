@@ -1,120 +1,74 @@
-import { Request, Response } from 'express';
-import db from '../database/connection';
-import { CreateCommentDto, UpdateCommentDto } from '../types';
+import { type Request, type Response } from 'express';
+import { getAllComments, createComment, updateComment, deleteComment, getCommentById } from '../models/commentModel.js';
 
-export const createComment = async (req: Request, res: Response) => {
-  try {
-    const { post_id, content, commenter_name }: CreateCommentDto = req.body;
+export const getAllCommentController = async (req: Request, res: Response) => {
+    try{
+        const { post, commenter } = req.query;
 
-    if (!post_id || !content || !commenter_name) {
-      return res.status(400).json({ error: 'post_id, content, and commenter_name are required' });
+        const filters = {
+            ...(post ? { post: Number(post) } : {}),
+            ...(commenter ? { commenter: commenter as string } : {})
+        };
+
+        const items = await getAllComments(filters);
+        res.json(items);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to retrieve categories" });
     }
-
-    // Gönderinin var olup olmadığını kontrol et (soft delete kontrolü yapmıyoruz, belirtilmiş gibi)
-    const post = await db('posts').where({ id: post_id }).first();
-
-    if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
-    }
-
-    const [comment] = await db('comments')
-      .insert({
-        post_id,
-        content,
-        commenter_name,
-      })
-      .returning('*');
-
-    res.status(201).json(comment);
-  } catch (error) {
-    console.error('Error creating comment:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
 };
 
-export const getComments = async (req: Request, res: Response) => {
-  try {
-    const { post, commenter } = req.query;
-
-    let query = db('comments').select('*');
-
-    // Post filtreleme
-    if (post) {
-      query = query.where({ post_id: post });
+export const createCommentController = async (req: Request, res: Response) => {
+    try {
+        
+        const newItem = await createComment(req.body);
+        res.status(201).json(newItem);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to create category" });
     }
-
-    // Yorumcu filtreleme
-    if (commenter) {
-      query = query.where({ commenter_name: commenter });
-    }
-
-    const comments = await query.orderBy('created_at', 'desc');
-
-    res.json(comments);
-  } catch (error) {
-    console.error('Error fetching comments:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
 };
 
-export const getCommentById = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-
-    const comment = await db('comments').where({ id }).first();
-
-    if (!comment) {
-      return res.status(404).json({ error: 'Comment not found' });
+export const updateCommentController = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const updatedItem = await updateComment(Number(id), req.body);
+        if (updatedItem.length === 0){
+            res.status(404).json({message: "Category not found"});
+            return;
+        }
+        res.status(200).json(updatedItem);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to update category" });
     }
-
-    res.json(comment);
-  } catch (error) {
-    console.error('Error fetching comment:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
 };
 
-export const updateComment = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const updateData: UpdateCommentDto = req.body;
-
-    // Önce yorumu kontrol et
-    const comment = await db('comments').where({ id }).first();
-
-    if (!comment) {
-      return res.status(404).json({ error: 'Comment not found' });
+export const deleteCommentController = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const deletedItem = await deleteComment(Number(id));
+        if (deletedItem.length === 0){
+            res.status(404).json({message: "Comment not found"})
+        }
+        res.status(204).json(deletedItem);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to delete category" });
     }
-
-    const [updated] = await db('comments')
-      .where({ id })
-      .update(updateData)
-      .returning('*');
-
-    res.json(updated);
-  } catch (error) {
-    console.error('Error updating comment:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
 };
 
-export const deleteComment = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-
-    // Önce yorumu kontrol et
-    const comment = await db('comments').where({ id }).first();
-
-    if (!comment) {
-      return res.status(404).json({ error: 'Comment not found' });
+export const getCommentByIdController = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const item = await getCommentById(Number(id));
+        if (!item) {
+            res.status(404).json({ error: "Comment not found" });
+        } else {
+            res.status(200).json(item);
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to retrieve category" });
     }
-
-    await db('comments').where({ id }).delete();
-
-    res.status(204).send();
-  } catch (error) {
-    console.error('Error deleting comment:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
-
+}

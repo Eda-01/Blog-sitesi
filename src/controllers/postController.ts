@@ -1,158 +1,74 @@
-import { Request, Response } from 'express';
-import db from '../database/connection';
-import { CreatePostDto, UpdatePostDto } from '../types';
+import { type Request, type Response } from 'express';
+import { getAllPosts, createPost,deletePost, getPostById, updatePost } from '../models/postModel.js';
 
-export const createPost = async (req: Request, res: Response) => {
-  try {
-    const { category_id, title, content, published_at }: CreatePostDto = req.body;
 
-    if (!category_id || !title || !content) {
-      return res.status(400).json({ error: 'category_id, title, and content are required' });
+export const getAllPostController = async (req: Request, res: Response) => {
+    try{
+        const { category, status, showDeleted } = req.query;
+
+        const filters = {
+            category: category ? Number(category) : undefined,
+            status: status as "published" | "draft" | "all" | undefined,
+            showDeleted: showDeleted as "true" | "false" | "onlyDeleted" | undefined
+        };
+
+        const items = await getAllPosts(filters);
+        res.json(items);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to retrieve Posts" });
     }
-
-    // Kategorinin var olup olmadığını kontrol et
-    const category = await db('categories')
-      .where({ id: category_id })
-      .whereNull('deleted_at')
-      .first();
-
-    if (!category) {
-      return res.status(404).json({ error: 'Category not found' });
-    }
-
-    const [post] = await db('posts')
-      .insert({
-        category_id,
-        title,
-        content,
-        published_at: published_at || null,
-      })
-      .returning('*');
-
-    res.status(201).json(post);
-  } catch (error) {
-    console.error('Error creating post:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
 };
 
-export const getPosts = async (req: Request, res: Response) => {
-  try {
-    const { category, status, showDeleted, onlyDeleted } = req.query;
-
-    let query = db('posts').select('*');
-
-    // Kategori filtreleme
-    if (category) {
-      query = query.where({ category_id: category });
+export const createPostController = async (req: Request, res: Response) => {
+    try {
+      const newItem = await createPost(req.body);
+        res.status(201).json(newItem);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to create Post" });
     }
-
-    // Status filtreleme
-    if (status === 'published') {
-      query = query.whereNotNull('published_at');
-    } else if (status === 'draft') {
-      query = query.whereNull('published_at');
-    }
-    // status === 'all' veya undefined ise tümü
-
-    // Soft delete filtreleme
-    if (onlyDeleted === 'true') {
-      query = query.whereNotNull('deleted_at');
-    } else if (showDeleted !== 'true') {
-      query = query.whereNull('deleted_at');
-    }
-
-    const posts = await query.orderBy('created_at', 'desc');
-
-    res.json(posts);
-  } catch (error) {
-    console.error('Error fetching posts:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
 };
 
-export const getPostById = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-
-    const post = await db('posts')
-      .where({ id })
-      .whereNull('deleted_at')
-      .first();
-
-    if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
+export const updatePostController = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const updatedItem = await updatePost(Number(id), req.body);
+        if (updatedItem.length === 0){
+            res.status(404).json({message: "Post not found"})
+        }
+        res.status(200).json(updatedItem);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to update Post" });
     }
-
-    res.json(post);
-  } catch (error) {
-    console.error('Error fetching post:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
 };
 
-export const updatePost = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const updateData: UpdatePostDto = req.body;
-
-    // Önce gönderiyi kontrol et (soft delete kontrolü)
-    const post = await db('posts')
-      .where({ id })
-      .whereNull('deleted_at')
-      .first();
-
-    if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
+export const deletePostController = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const deletedItem = await deletePost(Number(id));
+        if (deletedItem.length === 0) {
+            res.status(404).json({message: "Post not found"})
+        }
+        res.status(204).json(deletedItem);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to delete Post" });
     }
-
-    // Eğer category_id güncelleniyorsa, yeni kategoriyi kontrol et
-    if (updateData.category_id) {
-      const category = await db('categories')
-        .where({ id: updateData.category_id })
-        .whereNull('deleted_at')
-        .first();
-
-      if (!category) {
-        return res.status(404).json({ error: 'Category not found' });
-      }
-    }
-
-    const [updated] = await db('posts')
-      .where({ id })
-      .whereNull('deleted_at')
-      .update(updateData)
-      .returning('*');
-
-    res.json(updated);
-  } catch (error) {
-    console.error('Error updating post:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
 };
 
-export const deletePost = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-
-    // Önce gönderiyi kontrol et (soft delete kontrolü)
-    const post = await db('posts')
-      .where({ id })
-      .whereNull('deleted_at')
-      .first();
-
-    if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
+export const getPostByIdController = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const item = await getPostById(Number(id));
+        if (!item) {
+            res.status(404).json({ error: "Post not found" });
+        } else {
+            res.status(200).json(item);
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to retrieve Post" });
     }
-
-    await db('posts')
-      .where({ id })
-      .update({ deleted_at: new Date() });
-
-    res.status(204).send();
-  } catch (error) {
-    console.error('Error deleting post:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
-
+}
