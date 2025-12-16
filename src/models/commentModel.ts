@@ -1,36 +1,61 @@
-import db from "../config/database.js";
+import { prisma } from "../config/prisma.js";
 
 interface CommentFilters {
-    post?: number;
-    commenter?: string;
+  post?: number;
+  commenter?: string;
 }
 
 export const getAllComments = async (filters: CommentFilters = {}) => {
-    const query = db("comments");
+  const where: any = {};
 
-    if (typeof filters.post === "number") {
-        query.where("post_id", filters.post);
-    }
+  if (typeof filters.post === "number") {
+    where.post_id = filters.post;
+  }
 
-    if (typeof filters.commenter === "string" && filters.commenter.trim() !== "") {
-        query.where("commenter_name", filters.commenter);
-    }
+  if (typeof filters.commenter === "string" && filters.commenter.trim() !== "") {
+    where.commenter_name = filters.commenter;
+  }
 
-    return query.select("id", "post_id", "content", "commenter_name", "created_at");
+  return prisma.comment.findMany({
+    where,
+    select: {
+      id: true,
+      post_id: true,
+      content: true,
+      commenter_name: true,
+      created_at: true,
+    },
+  });
 };
 
-export const createComment = async (data: object) => {
- return db("comments").insert(data ).returning("*");
+export const createComment = async (data: {
+  post_id: number;
+  content: string;
+  commenter_name: string;
+}) => {
+  return prisma.comment.create({
+    data,
+  });
 };
 
-export const updateComment = async (id: number, data: object) => {
-    return db("comments").where({ id}).update(data).returning("*");
+export const updateComment = async (
+  id: number,
+  data: Partial<{ post_id: number; content: string; commenter_name: string }>
+) => {
+  return prisma.comment.updateMany({
+    where: { id },
+    data,
+  });
 };
 
 export const deleteComment = async (id: number) => {
-    return db("comments").where({ id}).delete().returning("*");
+  return prisma.comment.deleteMany({
+    where: { id },
+  });
 };
 
 export const getCommentById = async (id: number) => {
-    return db("comments").where({ id}).first();
+  return prisma.comment.findFirst({
+    where: { id },
+  });
 };

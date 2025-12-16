@@ -1,33 +1,66 @@
-import db from "../config/database.js";
+import { prisma } from "../config/prisma.js";
 
 type CategoryShowDeletedFilter = "true" | "false" | "onlyDeleted" | undefined;
 
 export const getAllCategories = async (showDeleted?: CategoryShowDeletedFilter) => {
-    const query = db("categories");
+  let where: any = {};
 
-    if (showDeleted === "onlyDeleted") {
-        query.whereNotNull("deleted_at");
-    } else if (showDeleted === "true") {
-        // hiçbir şey ekleme, hepsini getir
-    } else {
-        query.whereNull("deleted_at");
-    }
+  if (showDeleted === "onlyDeleted") {
+    where.deleted_at = { not: null };
+  } else if (showDeleted === "true") {
+    // hepsi
+  } else {
+    where.deleted_at = null;
+  }
 
-    return query.select("id", "name", "created_at", "deleted_at");
+  return prisma.category.findMany({
+    where,
+    select: {
+      id: true,
+      name: true,
+      created_at: true,
+      deleted_at: true,
+    },
+  });
 };
 
 export const createCategory = async (name: string) => {
- return db("categories").insert({ name }).returning(["id", "name"]);
+  return prisma.category.create({
+    data: { name },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
 };
 
-export const updateCategory = async (id: number, data: object) => {
-    return db("categories").where({ id, deleted_at: null }).update(data).returning("*");
+export const updateCategory = async (id: number, data: Partial<{ name: string }>) => {
+  return prisma.category.updateMany({
+    where: {
+      id,
+      deleted_at: null,
+    },
+    data,
+  });
 };
 
 export const deleteCategory = async (id: number) => {
-    return db("categories").where({ id, deleted_at: null }).update({ deleted_at: new Date() }).returning("*");
+  return prisma.category.updateMany({
+    where: {
+      id,
+      deleted_at: null,
+    },
+    data: {
+      deleted_at: new Date(),
+    },
+  });
 };
 
 export const getCategoryById = async (id: number) => {
-    return db("categories").where({ id, deleted_at: null }).first();
+  return prisma.category.findFirst({
+    where: {
+      id,
+      deleted_at: null,
+    },
+  });
 };
