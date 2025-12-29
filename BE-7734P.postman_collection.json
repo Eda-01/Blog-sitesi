@@ -7,6 +7,77 @@
 	},
 	"item": [
 		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Admin User\",\n    \"username\": \"admin\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.collectionVariables.set(\"token\", jsonData.accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Categories",
 			"item": [
 				{
@@ -32,6 +103,16 @@
 					"name": "Create Categories",
 					"request": {
 						"method": "POST",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"header": [],
 						"body": {
 							"mode": "raw",
@@ -59,7 +140,17 @@
 				{
 					"name": "Update Categories",
 					"request": {
-						"method": "PUT",
+						"method": "PATCH",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"header": [],
 						"body": {
 							"mode": "raw",
@@ -89,6 +180,16 @@
 					"name": "Delete Category",
 					"request": {
 						"method": "DELETE",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/api/v1/categories/1",
@@ -165,6 +266,16 @@
 					"name": "Delete Posts",
 					"request": {
 						"method": "DELETE",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/api/v1/posts/2",
@@ -205,6 +316,16 @@
 					"name": "Create Post",
 					"request": {
 						"method": "POST",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"header": [],
 						"body": {
 							"mode": "raw",
@@ -232,7 +353,17 @@
 				{
 					"name": "Update Post",
 					"request": {
-						"method": "PUT",
+						"method": "PATCH",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"header": [],
 						"body": {
 							"mode": "raw",
@@ -286,6 +417,16 @@
 					"name": "Create Comments",
 					"request": {
 						"method": "POST",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"header": [],
 						"body": {
 							"mode": "raw",
@@ -313,7 +454,17 @@
 				{
 					"name": "Update Comments",
 					"request": {
-						"method": "PUT",
+						"method": "PATCH",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"header": [],
 						"body": {
 							"mode": "raw",
@@ -363,6 +514,16 @@
 					"name": "Delete Comment",
 					"request": {
 						"method": "DELETE",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/api/v1/comments/4",
@@ -407,6 +568,16 @@
 					"name": "Create Tags",
 					"request": {
 						"method": "POST",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"header": [],
 						"body": {
 							"mode": "raw",
@@ -434,7 +605,17 @@
 				{
 					"name": "Update Tags",
 					"request": {
-						"method": "PUT",
+						"method": "PATCH",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"header": [],
 						"body": {
 							"mode": "raw",
@@ -484,6 +665,16 @@
 					"name": "Delete Tags",
 					"request": {
 						"method": "DELETE",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/api/v1/tags/1",
@@ -509,6 +700,16 @@
 					"name": "Create PostTags",
 					"request": {
 						"method": "POST",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"header": [],
 						"body": {
 							"mode": "raw",
@@ -564,6 +765,16 @@
 					"name": "Delete PostTags",
 					"request": {
 						"method": "DELETE",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/api/v1/posts/:id/tags",
@@ -617,7 +828,7 @@
 	"variable": [
 		{
 			"key": "base_url",
-			"value": ""
+			"value": "http://localhost:3000"
 		}
 	]
 }

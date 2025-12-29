@@ -1,73 +1,68 @@
-import { type Request, type Response } from 'express';
-import { getAllCategories, createCategory, updateCategory, deleteCategory, getCategoryById } from '../models/categoryModel.js';
+import { Request, Response } from 'express';
+import prisma from '../utils/prismaClient.js';
 
 export const getAllCategoriesController = async (req: Request, res: Response) => {
   try {
-    const { showDeleted } = req.query;
-    const items = await getAllCategories(showDeleted as 'true' | 'false' | 'onlyDeleted' | undefined);
-    res.status(200).json(items);
+    const categories = await prisma.category.findMany({
+      where: { deleted_at: null },
+    });
+    res.status(200).json(categories);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to retrieve categories' });
+    res.status(500).json({ error: 'Kategoriler getirilemedi.' });
   }
 };
 
 export const createCategoryController = async (req: Request, res: Response) => {
+  const { name } = req.body;
   try {
-    const { name } = req.body;
-    const item = await createCategory(name);
-    res.status(201).json(item);
+    const newCategory = await prisma.category.create({
+      data: { name },
+    });
+    res.status(201).json(newCategory);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to create category' });
+    res.status(500).json({ error: 'Kategori oluşturulamadı.' });
   }
 };
 
 export const updateCategoryController = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { name } = req.body;
   try {
-    const { id } = req.params;
-    const result = await updateCategory(Number(id), req.body);
-
-    if (result.count === 0) {
-      res.status(404).json({ message: 'Category not found' });
-      return;
-    }
-
-    res.status(200).json({ updated: result.count });
+    const updatedCategory = await prisma.category.update({
+      where: { id: Number(id) },
+      data: { name },
+    });
+    res.json(updatedCategory);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to update category' });
+    res.status(500).json({ error: 'Kategori güncellenemedi.' });
   }
 };
 
 export const deleteCategoryController = async (req: Request, res: Response) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
-    const result = await deleteCategory(Number(id));
-
-    if (result.count === 0) {
-      res.status(404).json({ message: 'Category not found' });
-      return;
-    }
-
-    res.status(204).json({ deleted: result.count });
+    await prisma.category.update({
+      where: { id: Number(id) },
+      data: { deleted_at: new Date() },
+    });
+    res.json({ message: 'Kategori başarıyla silindi.' });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to delete category' });
+    res.status(500).json({ error: 'Kategori silinemedi.' });
   }
 };
 
 export const getCategoryByIdController = async (req: Request, res: Response) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
-    const item = await getCategoryById(Number(id));
-    if (!item) {
-      res.status(404).json({ error: 'Category not found' });
-    } else {
-      res.status(200).json(item);
-    }
+    const category = await prisma.category.findFirst({
+      where: { 
+        id: Number(id),
+        deleted_at: null 
+      },
+    });
+    if (!category) return res.status(404).json({ message: 'Kategori bulunamadı.' });
+    res.json(category);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to retrieve category' });
+    res.status(500).json({ error: 'Hata oluştu.' });
   }
 };

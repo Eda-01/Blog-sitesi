@@ -1,6 +1,8 @@
 import { type Request, type Response } from "express";
 import { getAllPosts, createPost, deletePost, getPostById, updatePost } from "../models/postModel.js";
 
+import { getAllPosts, createPost, deletePost, getPostById, updatePost } from "../models/postModel.js";
+
 export const getAllPostController = async (req: Request, res: Response) => {
   try {
     const { category, status, showDeleted, tags } = req.query;

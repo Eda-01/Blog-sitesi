@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx watch src/app.ts"
+    "dev": "npx prisma generate && tsx watch src/app.ts"
   },
   "keywords": [],
   "author": "",
@@ -16,13 +16,17 @@
     "@prisma/client": "^7.1.0",
     "@types/express": "^5.0.6",
     "@types/node": "^25.0.2",
+    "argon2": "^0.44.0",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "knex": "^3.1.0",
     "pg": "^8.16.3",
     "typescript": "^5.9.3"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "prisma": "^7.1.0",
     "tsx": "^4.21.0"
   }
 }
