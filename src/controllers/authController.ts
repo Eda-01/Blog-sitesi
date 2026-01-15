@@ -1,53 +1,119 @@
-import { Request, Response } from 'express';
-import prisma from '../utils/prismaClient.js';
-import argon2 from 'argon2';
-import jwt from 'jsonwebtoken';
+import {type Request, type Response} from "express";
+import {createUser, getUserByUsername} from "../models/userModel";
+import { createRefreshToken, getRefreshTokenByUserId, revokeRefreshToken } from "../models/refreshTokenModel";
+import { hashPassword, verifyPassword } from "../utils/hashPassword";
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../services/jwtService";
+import { JWT_EXPIRATION } from "../utils/constants";
 
-const JWT_SECRET = process.env.JWT_SECRET || 'gizli-anahtar';
-const REFRESH_SECRET = process.env.REFRESH_SECRET || 'refresh-gizli-anahtar';
 
 export const registerController = async (req: Request, res: Response) => {
-  const { name, username, password, role } = req.body;
-  try {
-    const hashedPassword = await argon2.hash(password);
-    
-    const user = await prisma.user.create({
-      data: {
-        name,
-        username,
-        hashed_password: hashedPassword,
-        role: role || 'member', // Eğer rol gönderilmezse varsayılan 'member' olsun
-      },
-    });
+    try {
+        const { name, username, password } = req.body;
+        if (!name || !username || !password) {
+            return res.status(400).json({ message: 'Name, username, and password are required' });
+        }
+        const existingUser = await getUserByUsername(username);
+        if (existingUser) {
+            return res.status(400).json({ message: 'Username already exists' });
+        }
+        const hashedPassword = await hashPassword(password);
+        await createUser(name, username, hashedPassword);
+        res.status(201).json({ message: 'User created successfully' });
 
-    res.status(201).json({ message: 'Kullanıcı oluşturuldu', userId: user.id });
-  } catch (error) {
-    res.status(500).json({ error: 'Kayıt işlemi başarısız.' });
-  }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
 };
 
 export const loginController = async (req: Request, res: Response) => {
-  const { username, password } = req.body;
-  try {
-    const user = await prisma.user.findUnique({ where: { username } });
-    
-    if (!user || !(await argon2.verify(user.hashed_password, password))) {
-      return res.status(401).json({ message: 'Geçersiz kullanıcı adı veya şifre' });
+    try {
+        const { username, password } = req.body;
+        if (!username || !password) {
+            return res.status(400).json({ message: 'Username and password are required' });
+        }
+        const user = await getUserByUsername(username);
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid username or password' });
+        }
+        const isPasswordValid = await verifyPassword(password, user.hashed_password);
+        if (!isPasswordValid) {
+            return res.status(400).json({ message: 'Invalid username or password' });
+        }
+        const  accessToken = await generateAccessToken(user.id);
+        const  refreshToken = await generateRefreshToken(user.id);
+        const refreshTokenData = {
+            user_id: user.id,
+            expires_at: new Date(Date.now() + JWT_EXPIRATION.REFRESH as number), 
+            created_at: new Date(),
+            
+        };
+        await createRefreshToken(refreshTokenData);
+      
+        res.status(200).json({ accessToken, refreshToken }  );
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
     }
+}
+export const refreshTokenController = async (req: Request, res: Response) => {
+    try {
+        const { refreshToken } = req.body;
+        if (!refreshToken) {
+            return res.status(400).json({ message: 'Refresh token is required' });
+        }
+        let payload: {userId: number};
+        try {
+             payload = await verifyRefreshToken(refreshToken) as {userId: number};
+        } catch (error) {
+            console.error(error);
+            return res.status(401).json({ message: 'Invalid refresh token' });
+        }
+        const refreshTokenData = await getRefreshTokenByUserId(payload.userId);
+        if (!refreshTokenData) {
+            return res.status(401).json({ message: 'Refresh token not found or expired' });
+        }
+        const accessToken = await generateAccessToken(payload.userId);
+        const newRefreshToken = await generateRefreshToken(payload.userId);
+        const newRefreshTokenData = {
+            user_id: payload.userId,
+            expires_at: new Date(Date.now() + JWT_EXPIRATION.REFRESH as number),
+            created_at: new Date(),
+        };
+        await createRefreshToken(newRefreshTokenData);
+        await revokeRefreshToken(refreshTokenData.id);
+        res.status(200).json({ accessToken, refreshToken: newRefreshToken });
 
-    const accessToken = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
-    const refreshToken = jwt.sign({ id: user.id }, REFRESH_SECRET, { expiresIn: '7d' });
-
-    // Refresh Token'ı veritabanına kaydet
-    await prisma.refreshToken.create({
-      data: {
-        user_id: user.id,
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 gün
-      },
-    });
-
-    res.json({ accessToken, refreshToken });
-  } catch (error) {
-    res.status(500).json({ error: 'Giriş yapılamadı.' });
-  }
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
 };
+
+export const logoutController = async (req: Request, res: Response) => {
+    try {
+        const { refreshToken } = req.body;
+        if (!refreshToken) {
+            return res.status(400).json({ message: 'Refresh token is required' });
+        }
+        let payload: {userId: number};
+        try {
+             payload = await verifyRefreshToken(refreshToken) as {userId: number};
+        } catch (error) {
+            console.error(error);
+            return res.status(401).json({ message: 'Invalid refresh token' });
+        }
+        const refreshTokenData = await getRefreshTokenByUserId(payload.userId);
+        if (!refreshTokenData) {
+            return res.status(400).json({ message: 'Invalid refresh token' });
+        }
+        await revokeRefreshToken(refreshTokenData.id);
+        res.status(200).json({ message: 'Logged out successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    
+    }
+}

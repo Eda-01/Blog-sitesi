@@ -5,112 +5,108 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
+model Category {
+  id         Int       @id @default(autoincrement())
+  name       String
+  created_at DateTime  @default(now())
+  deleted_at DateTime?
+  posts      Post[]
+
+  @@map("categories")
+}
+
+model Post {
+  id          Int       @id @default(autoincrement())
+  title       String
+  content     String
+  category_id Int
+  published   DateTime?
+  created_at  DateTime  @default(now())
+  deleted_at  DateTime?
+  user_id     Int
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  category Category  @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  comments Comment[]
+  postTags PostTag[]
+
+  @@map("posts")
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  content    String
+  created_at DateTime @default(now())
+  post_id    Int
+  user_id    Int
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  post Post @relation(fields: [post_id], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+model Tag {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  postTags PostTag[]
+
+  @@map("tags")
+}
+
+model PostTag {
+  post_id Int
+  tag_id  Int
+
+  post Post @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+
+  @@id([post_id, tag_id])
+  @@map("post_tags")
+}
+
 enum Role {
-  member
-  moderator
-  admin
+  MEMBER
+  MODERATOR
+  ADMIN
 }
 
 model User {
-  id              Int       @id @default(autoincrement())
-  name            String
-  username        String    @unique
+  id              Int            @id @default(autoincrement())
+  name            String?
+  username        String
   hashed_password String
-  role            Role      @default(member)
-  created_at      DateTime  @default(now())
+  role            Role           @default(MEMBER)
+  created_at      DateTime       @default(now())
   deleted_at      DateTime?
-
+  refreshTokens   RefreshToken[]
   posts           Post[]
   comments        Comment[]
-  refresh_tokens  RefreshToken[]
+
 
   @@map("users")
 }
 
 model RefreshToken {
-  id          Int       @id @default(autoincrement())
-  user_id     Int
-  created_at  DateTime  @default(now())
-  updated_at  DateTime  @updatedAt
-  expires_at  DateTime
-  revoked_at  DateTime?
+  id         Int       @id @default(autoincrement())
+  user_id    Int
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  expires_at DateTime?
+  revoked_at DateTime?
 
-  user        User      @relation(fields: [user_id], references: [id])
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("refresh_tokens")
-}
-
-/// Category model
-model Category {
-  id          Int      @id @default(autoincrement())
-  name        String
-  created_at  DateTime @default(now())
-  deleted_at  DateTime?
-
-  posts Post[]
-
-  @@map("categories")
-}
-
-/// Blog post model
-model Post {
-  id           Int       @id @default(autoincrement())
-  category_id  Int
-  user_id      Int
-  title        String
-  content      String
-  created_at   DateTime  @default(now())
-  published_at DateTime?
-  deleted_at   DateTime?
-
-  category Category @relation(fields: [category_id], references: [id])
-  user     User     @relation(fields: [user_id], references: [id])
-  comments Comment[]
-  tags     PostTag[]
-
-  @@map("posts")
-}
-
-/// Comment model
-model Comment {
-  id             Int      @id @default(autoincrement())
-  post_id        Int
-  user_id        Int
-  content        String
-  commenter_name String
-  created_at     DateTime @default(now())
-
-  post Post @relation(fields: [post_id], references: [id])
-  user User @relation(fields: [user_id], references: [id])
-
-  @@map("comments")
-}
-
-/// Tag model
-model Tag {
-  id   Int    @id @default(autoincrement())
-  name String
-
-  posts PostTag[]
-
-  @@map("tags")
-}
-
-/// Pivot table for Post <-> Tag many-to-many
-model PostTag {
-  post_id Int
-  tag_id  Int
-
-  post Post @relation(fields: [post_id], references: [id])
-  tag  Tag  @relation(fields: [tag_id], references: [id])
-
-  @@id([post_id, tag_id])
-  @@map("post_tags")
 }

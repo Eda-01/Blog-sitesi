@@ -1,82 +1,11 @@
 {
 	"info": {
-		"_postman_id": "155cfb74-a03c-4718-a43b-c856f5f8106d",
+		"_postman_id": "8ec5ab1d-007f-4297-9f9d-ad5c7678d072",
 		"name": "BE-7734P",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "42372356"
 	},
 	"item": [
-		{
-			"name": "Auth",
-			"item": [
-				{
-					"name": "Register",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Admin User\",\n    \"username\": \"admin\",\n    \"password\": \"password123\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/auth/register",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"auth",
-								"register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Login",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var jsonData = pm.response.json();",
-									"pm.collectionVariables.set(\"token\", jsonData.accessToken);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"password123\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/auth/login",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"auth",
-								"login"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
 		{
 			"name": "Categories",
 			"item": [
@@ -94,6 +23,13 @@
 								"api",
 								"v1",
 								"categories"
+							],
+							"query": [
+								{
+									"key": "showDeleted",
+									"value": "onlyDeleted",
+									"disabled": true
+								}
 							]
 						}
 					},
@@ -102,21 +38,20 @@
 				{
 					"name": "Create Categories",
 					"request": {
-						"method": "POST",
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
-						"header": [],
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc2ODQxNzA3MSwiZXhwIjoxNzY4NDIwNjcxfQ.aFwknd_AXjRmUr3W6P7v0R11S1EIXbza9bLuQmoYJ6o",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Ekonomi\"\n}",
+							"raw": "{\n    \"name\": \"Test10\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -140,21 +75,20 @@
 				{
 					"name": "Update Categories",
 					"request": {
-						"method": "PATCH",
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
-						"header": [],
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc2ODQxNzA3MSwiZXhwIjoxNzY4NDIwNjcxfQ.aFwknd_AXjRmUr3W6P7v0R11S1EIXbza9bLuQmoYJ6o",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Yazılım\"\n}",
+							"raw": "{\n    \"name\": \"Test222\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -162,7 +96,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/categories/3",
+							"raw": "{{base_url}}/api/v1/categories/2",
 							"host": [
 								"{{base_url}}"
 							],
@@ -170,7 +104,7 @@
 								"api",
 								"v1",
 								"categories",
-								"3"
+								"2"
 							]
 						}
 					},
@@ -179,20 +113,19 @@
 				{
 					"name": "Delete Category",
 					"request": {
-						"method": "DELETE",
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
-						"header": [],
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc2ODQxNzA3MSwiZXhwIjoxNzY4NDIwNjcxfQ.aFwknd_AXjRmUr3W6P7v0R11S1EIXbza9bLuQmoYJ6o",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/categories/1",
+							"raw": "{{base_url}}/api/v1/categories/2",
 							"host": [
 								"{{base_url}}"
 							],
@@ -200,7 +133,7 @@
 								"api",
 								"v1",
 								"categories",
-								"1"
+								"2"
 							]
 						}
 					},
@@ -224,7 +157,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/categories/2",
+							"raw": "{{base_url}}/api/v1/categories/1",
 							"host": [
 								"{{base_url}}"
 							],
@@ -232,7 +165,7 @@
 								"api",
 								"v1",
 								"categories",
-								"2"
+								"1"
 							]
 						}
 					},
@@ -248,6 +181,64 @@
 					"request": {
 						"method": "GET",
 						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/posts?tags=1,4",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"posts"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "draft",
+									"disabled": true
+								},
+								{
+									"key": "showDeleted",
+									"value": "true",
+									"disabled": true
+								},
+								{
+									"key": "category",
+									"value": "2",
+									"disabled": true
+								},
+								{
+									"key": "tags",
+									"value": "1,4"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Post",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc2ODQyMDg5MiwiZXhwIjoxNzY4NDI0NDkyfQ.wZfskMMb3FSACwBJ4CwCe5uqGP_izxPZNnSbYf8R688",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\":\"Test4\",\n    \"content\": \"Yazılım\",\n    \"category_id\": 1\n\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/posts",
 							"host": [
@@ -265,20 +256,19 @@
 				{
 					"name": "Delete Posts",
 					"request": {
-						"method": "DELETE",
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
-						"header": [],
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjExLCJpYXQiOjE3Njg0OTU4MzQsImV4cCI6MTc2ODQ5OTQzNH0.LP-q53dPXRye1MoXZ20MgoJd3gjQ-mAvpHz0luFmXO8",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/posts/2",
+							"raw": "{{base_url}}/api/v1/posts/5",
 							"host": [
 								"{{base_url}}"
 							],
@@ -286,7 +276,7 @@
 								"api",
 								"v1",
 								"posts",
-								"2"
+								"5"
 							]
 						}
 					},
@@ -313,61 +303,22 @@
 					"response": []
 				},
 				{
-					"name": "Create Post",
-					"request": {
-						"method": "POST",
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"title\":\"Ekonomi dünyası\",\n    \"content\": \"Ekonomi alanında büyük yenilik\",\n    \"category_id\": 2\n\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/api/v1/posts",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"posts"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Update Post",
 					"request": {
-						"method": "PATCH",
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
-						"header": [],
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjExLCJpYXQiOjE3Njg0OTU4MzQsImV4cCI6MTc2ODQ5OTQzNH0.LP-q53dPXRye1MoXZ20MgoJd3gjQ-mAvpHz0luFmXO8",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"title\":\"Yazılım dünyası 1\",\n    \"content\": \"Yazlım geliştirme\",\n    \"category_id\": 1\n\n}",
+							"raw": "{\n    \"title\":\"Test2-33\",\n    \"content\": \"3115\",\n    \"category_id\": 2\n\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -375,7 +326,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/posts/1",
+							"raw": "{{base_url}}/api/v1/posts/2",
 							"host": [
 								"{{base_url}}"
 							],
@@ -383,7 +334,79 @@
 								"api",
 								"v1",
 								"posts",
-								"1"
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Tag To Post",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjExLCJpYXQiOjE3Njg0OTk3NDQsImV4cCI6MTc2ODUwMzM0NH0.n_RZappY_dnTdPpGxar5dxBdwdNVNS7AqaexAr62zBk",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tagId\":2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/posts/2/tags",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"posts",
+								"2",
+								"tags"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Tag To Post",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tagId\": 3\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/posts/1/tags",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"posts",
+								"1",
+								"tags"
 							]
 						}
 					},
@@ -408,6 +431,18 @@
 								"api",
 								"v1",
 								"comments"
+							],
+							"query": [
+								{
+									"key": "post",
+									"value": "2",
+									"disabled": true
+								},
+								{
+									"key": "commenter",
+									"value": "test",
+									"disabled": true
+								}
 							]
 						}
 					},
@@ -416,21 +451,20 @@
 				{
 					"name": "Create Comments",
 					"request": {
-						"method": "POST",
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
-						"header": [],
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjExLCJpYXQiOjE3Njg0OTU4MzQsImV4cCI6MTc2ODQ5OTQzNH0.LP-q53dPXRye1MoXZ20MgoJd3gjQ-mAvpHz0luFmXO8",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"post_id\":2,\n    \"content\": \"Yorum3\",\n    \"commenter_name\": \"Ekonomi alanı güzel\"\n}",
+							"raw": "{\n    \"post_id\":2,\n    \"content\": \"Yorum2--3333\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -454,21 +488,20 @@
 				{
 					"name": "Update Comments",
 					"request": {
-						"method": "PATCH",
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
-						"header": [],
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjExLCJpYXQiOjE3Njg0OTk3NDQsImV4cCI6MTc2ODUwMzM0NH0.n_RZappY_dnTdPpGxar5dxBdwdNVNS7AqaexAr62zBk",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"post_id\":1,\n    \"content\": \"Yorum1\",\n    \"commenter_name\": \"Yazlım büyük bir alan olmakta\"\n}",
+							"raw": "{\n    \"post_id\":2,\n    \"content\": \"Yorum1\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -476,7 +509,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/comments/1",
+							"raw": "{{base_url}}/api/v1/comments/2",
 							"host": [
 								"{{base_url}}"
 							],
@@ -484,7 +517,7 @@
 								"api",
 								"v1",
 								"comments",
-								"1"
+								"2"
 							]
 						}
 					},
@@ -513,7 +546,6 @@
 				{
 					"name": "Delete Comment",
 					"request": {
-						"method": "DELETE",
 						"auth": {
 							"type": "bearer",
 							"bearer": [
@@ -524,6 +556,7 @@
 								}
 							]
 						},
+						"method": "DELETE",
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/api/v1/comments/4",
@@ -567,21 +600,20 @@
 				{
 					"name": "Create Tags",
 					"request": {
-						"method": "POST",
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
-						"header": [],
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjExLCJpYXQiOjE3Njg0OTk3NDQsImV4cCI6MTc2ODUwMzM0NH0.n_RZappY_dnTdPpGxar5dxBdwdNVNS7AqaexAr62zBk",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\":3,\n    \"name\":\"Mühendislik\"\n}",
+							"raw": "{\n    \"name\":\"Test3\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -605,21 +637,20 @@
 				{
 					"name": "Update Tags",
 					"request": {
-						"method": "PATCH",
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
-						"header": [],
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjExLCJpYXQiOjE3Njg0OTk3NDQsImV4cCI6MTc2ODUwMzM0NH0.n_RZappY_dnTdPpGxar5dxBdwdNVNS7AqaexAr62zBk",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\":2,\n  \"name\": \"Frontend\"\n}",
+							"raw": "{\n  \"name\": \"Frontend\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -664,20 +695,13 @@
 				{
 					"name": "Delete Tags",
 					"request": {
-						"method": "DELETE",
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
+						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/api/v1/tags/1",
+							"raw": "{{base_url}}/api/v1/tags/3",
 							"host": [
 								"{{base_url}}"
 							],
@@ -685,7 +709,7 @@
 								"api",
 								"v1",
 								"tags",
-								"1"
+								"3"
 							]
 						}
 					},
@@ -694,26 +718,22 @@
 			]
 		},
 		{
-			"name": "PostTags",
+			"name": "User",
 			"item": [
 				{
-					"name": "Create PostTags",
+					"name": "Create User",
 					"request": {
 						"method": "POST",
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc2ODQxNTA4NCwiZXhwIjoxNzY4NDE4Njg0fQ.wUq7zYL-Izeuz7y17DOCvAwc7PX1DTbEnahLFVaY--8",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"post_id\":3,\n  \"tag_id\":4\n}",
+							"raw": "{\n    \"name\": \"Test10\",\n    \"username\":\"Test10\",\n    \"password\": \"123456\",\n    \"role\": \"ADMIN\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -721,78 +741,278 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/posts/2/tags",
+							"raw": "{{base_url}}/api/v1/users",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"posts",
-								"2",
-								"tags"
+								"users"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Filtre PostTags",
+					"name": "Get Users",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/api/v1/posts?tags=2,3",
+							"raw": "{{base_url}}/api/v1/users",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"posts"
-							],
-							"query": [
-								{
-									"key": "tags",
-									"value": "2,3"
-								}
+								"users"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Delete PostTags",
+					"name": "Get By ID",
 					"request": {
-						"method": "DELETE",
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
+						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/api/v1/posts/:id/tags",
+							"raw": "{{base_url}}/api/v1/users/1",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"posts",
-								":id",
-								"tags"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "1"
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc2ODQxNTA4NCwiZXhwIjoxNzY4NDE4Njg0fQ.wUq7zYL-Izeuz7y17DOCvAwc7PX1DTbEnahLFVaY--8",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"name\": \"Ali\"\n\n}",
+							"options": {
+								"raw": {
+									"language": "json"
 								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/9",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/4",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test11\",\n    \"username\":\"Test11\",\n    \"password\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\":\"Test11\",\n    \"password\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Me",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjksImlhdCI6MTc2ODQxMTg0NiwiZXhwIjoxNzY4NDE1NDQ2fQ.K4_VNyt4aTw_NmgQWRF8-traWpQnApXNbfV8UVFsMOs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjksImlhdCI6MTc2ODQxMTg0NiwiZXhwIjoxNzY4NDE1NDQ2fQ.K4_VNyt4aTw_NmgQWRF8-traWpQnApXNbfV8UVFsMOs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjksImlhdCI6MTc2ODQxMTg0NiwiZXhwIjoxNzY5MDE2NjQ2fQ.jMQFKRWxR1mzTq20T5DP57knRuz6iVNp6zEzfH8NjE4\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/refresh-token",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"refresh-token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjksImlhdCI6MTc2ODQxMTg0NiwiZXhwIjoxNzY4NDE1NDQ2fQ.K4_VNyt4aTw_NmgQWRF8-traWpQnApXNbfV8UVFsMOs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"refreshToken\": \"eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjksImlhdCI6MTc2ODQxMjAyMCwiZXhwIjoxNzY5MDE2ODIwfQ.gvSl3eRGBNYfxSBTcQWD_39wWy_OIji4OCI1QDZz0hc\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"logout"
 							]
 						}
 					},

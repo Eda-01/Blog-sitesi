@@ -1,104 +1,59 @@
-import { prisma } from "../config/prisma.js";
 
-type PostStatusFilter = "published" | "draft" | "all" | undefined;
-type PostShowDeletedFilter = "true" | "false" | "onlyDeleted" | undefined;
+import { prisma } from "../config/database";
+import { POST_STATUS, SHOW_DELETED } from "../utils/constants";
 
-interface PostFilters {
-  category?: number;
-  status?: PostStatusFilter;
-  showDeleted?: PostShowDeletedFilter;
-  tags?: number[]; // eklenecek tag filtreleri icin
+const createWhereClause = (id: number) => {
+  return { id };
+};
+
+export const  getAllPosts = async (showDeleted:string, category:number, status:string , tagIds:number[]) => {
+
+let whereClause:any = {};
+
+if(showDeleted === SHOW_DELETED.TRUE){ }
+else if (showDeleted === SHOW_DELETED.ONLY_DELETED){
+  whereClause.deleted_at = { not: null };
+} else {
+  whereClause.deleted_at = null;   
 }
-
-export const getAllPosts = async (filters: PostFilters = {}) => {
-  const where: any = {};
-
-  if (filters.showDeleted === "onlyDeleted") {
-    where.deleted_at = { not: null };
-  } else if (filters.showDeleted === "true") {
-    // hepsi
-  } else {
-    where.deleted_at = null;
-  }
-
-  if (filters.status === "published") {
-    where.published_at = { not: null };
-  } else if (filters.status === "draft") {
-    where.published_at = null;
-  }
-
-  if (typeof filters.category === "number") {
-    where.category_id = filters.category;
-  }
-
-  if (filters.tags && filters.tags.length > 0) {
-    where.tags = {
-      some: {
-        tag_id: { in: filters.tags },
+if(category){
+  whereClause.category_id = category;
+}
+if(status === POST_STATUS.PUBLISHED){
+  whereClause.published_at = { not: null };
+}
+else if (status === POST_STATUS.DRAFT) {
+  whereClause.published_at = null;
+}
+if (tagIds && tagIds.length > 0) {
+  whereClause.postTags = {
+    some: {
+      tag_id: {
+        in: tagIds
       },
-    };
+    },
+  };
   }
 
-  return prisma.post.findMany({
-    where,
-    select: {
-      id: true,
-      title: true,
-      category_id: true,
-      content: true,
-      created_at: true,
-      published_at: true,
-      deleted_at: true,
-    },
-  });
+ return prisma.post.findMany({
+  where: whereClause, select: {id: true,title: true},
+});
 };
 
-export const createPost = async (data: {
-  category_id: number;
-  title: string;
-  content: string;
-  published_at?: Date | null;
-}) => {
-  return prisma.post.create({
-    data,
-  });
+
+export const createPost = async (data: object, userId: number) => {
+  return prisma.post.create({data:{...data, user_id: userId}  as any});
 };
 
-export const updatePost = async (
-  id: number,
-  data: Partial<{
-    category_id: number;
-    title: string;
-    content: string;
-    published_at: Date | null;
-  }>
-) => {
-  return prisma.post.updateMany({
-    where: {
-      id,
-      deleted_at: null,
-    },
-    data,
-  });
+export const updatePost = async (id: number, data: object) => {
+  return  prisma.post.update({where: createWhereClause(id), data: data as any});
 };
 
 export const deletePost = async (id: number) => {
-  return prisma.post.updateMany({
-    where: {
-      id,
-      deleted_at: null,
-    },
-    data: {
-      deleted_at: new Date(),
-    },
-  });
-};
+  return prisma.post.update({where: createWhereClause(id), data: {deleted_at: new Date()}});
+};  
 
 export const getPostById = async (id: number) => {
-  return prisma.post.findFirst({
-    where: {
-      id,
-      deleted_at: null,
-    },
-  });
+  return prisma.post.findUnique({where: {id}});
 };
+

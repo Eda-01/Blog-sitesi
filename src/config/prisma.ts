@@ -14,7 +14,7 @@ const getDatabaseUrl = (): string => {
   const host = process.env.DB_HOST || "localhost";
   const port = process.env.DB_PORT || "5432";
   const user = process.env.DB_USER || "postgres";
-  const password = process.env.DB_PASSWORD || "";
+  const password = process.env.DB_PASSWORD || "postgres";
   const database = process.env.DB_NAME || "blog_odev";
   
   return `postgresql://${user}:${password}@${host}:${port}/${database}`;

@@ -1,68 +1,84 @@
-import { Request, Response } from 'express';
-import prisma from '../utils/prismaClient.js';
+import { type Request, type Response } from 'express';
+import { getAllCategories, getCategoryById, createCategory, updateCategory, deleteCategory } from "../models/categoryModel.js"
+import { getUserById } from '../models/userModel.js';
+
 
 export const getAllCategoriesController = async (req: Request, res: Response) => {
   try {
-    const categories = await prisma.category.findMany({
-      where: { deleted_at: null },
-    });
-    res.status(200).json(categories);
+    const { showDeleted } = req.query;
+    const items = await getAllCategories(showDeleted as string);
+    res.status(200).json(items);
   } catch (error) {
-    res.status(500).json({ error: 'Kategoriler getirilemedi.' });
+    console.error(error);
+    res.status(500).json({ error: 'Kategoriler alınırken bir hata oluştu.' });
   }
 };
+
 
 export const createCategoryController = async (req: Request, res: Response) => {
-  const { name } = req.body;
   try {
-    const newCategory = await prisma.category.create({
-      data: { name },
-    });
-    res.status(201).json(newCategory);
-  } catch (error) {
-    res.status(500).json({ error: 'Kategori oluşturulamadı.' });
+    const user = await getUserById(req.user?.userId as number);
+            if (!user || user.role !== 'ADMIN') {
+                return res.status(403).json({ message: 'You are not authorized to create a new user' });
+            }
+   const {name} = req.body;
+   const item = await createCategory(name);
+    res.status(201).json(item);
+    } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+ 
 
 export const updateCategoryController = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { name } = req.body;
   try {
-    const updatedCategory = await prisma.category.update({
-      where: { id: Number(id) },
-      data: { name },
-    });
-    res.json(updatedCategory);
-  } catch (error) {
-    res.status(500).json({ error: 'Kategori güncellenemedi.' });
+    const user = await getUserById(req.user?.userId as number);
+        if (!user || user.role !== 'ADMIN') {
+            return res.status(403).json({ message: 'You are not authorized to create a new user' });
+        }
+    const { id } = req.params;
+    const item = await updateCategory(Number(id), req.body);
+ res.status(200).json(item);
   }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+
 };
+
+
+
 
 export const deleteCategoryController = async (req: Request, res: Response) => {
-  const { id } = req.params;
   try {
-    await prisma.category.update({
-      where: { id: Number(id) },
-      data: { deleted_at: new Date() },
-    });
-    res.json({ message: 'Kategori başarıyla silindi.' });
+    const user = await getUserById(req.user?.userId as number);
+        if (!user || user.role !== 'ADMIN') {
+            return res.status(403).json({ message: 'You are not authorized to create a new user' });
+        }
+    const { id } = req.params;
+    const item = await deleteCategory(Number(id));
+    res.status(200).json(item);
   } catch (error) {
-    res.status(500).json({ error: 'Kategori silinemedi.' });
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' })
   }
-};
+}
 
 export const getCategoryByIdController = async (req: Request, res: Response) => {
-  const { id } = req.params;
+
   try {
-    const category = await prisma.category.findFirst({
-      where: { 
-        id: Number(id),
-        deleted_at: null 
-      },
-    });
-    if (!category) return res.status(404).json({ message: 'Kategori bulunamadı.' });
-    res.json(category);
+    const { id } = req.params;
+    const item = await getCategoryById(Number(id));
+
+    if (!item) {
+      res.status(404).json({ message: 'Kategori bulunamadı.' });
+      return;
+    }
+    res.status(200).json(item);
   } catch (error) {
-    res.status(500).json({ error: 'Hata oluştu.' });
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };

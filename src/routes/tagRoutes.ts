@@ -1,20 +1,12 @@
 import { Router } from "express";
-import {
-  getAllTagsController,
-  createTagController,
-  updateTagController,
-  deleteTagController,
-  getTagByIdController,
-} from "../controllers/tagController.js";
-
+import { createItem, deleteItem, itemDetails, listItems, updateItem } from "../controllers/tagController.js";
+import { authMiddleware } from "../middleware/auth.middleware.js";
 const router = Router();
 
-router.get("/", getAllTagsController);
-router.post("/", createTagController);
-router.patch("/:id", updateTagController);
-router.delete("/:id", deleteTagController);
-router.get("/:id", getTagByIdController);
+router.post("/",authMiddleware, createItem);
+router.get("/", listItems);
+router.get("/:id", itemDetails);
+router.put("/:id",authMiddleware, updateItem);
+router.delete("/:id",authMiddleware, deleteItem);
 
 export default router;
-
-

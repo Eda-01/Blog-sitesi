@@ -1,66 +1,59 @@
-import { prisma } from "../config/prisma.js";
+import {prisma} from "../config/database.js";
+import { SHOW_DELETED } from "../utils/constants.js";
 
-type CategoryShowDeletedFilter = "true" | "false" | "onlyDeleted" | undefined;
 
-export const getAllCategories = async (showDeleted?: CategoryShowDeletedFilter) => {
-  let where: any = {};
-
-  if (showDeleted === "onlyDeleted") {
-    where.deleted_at = { not: null };
-  } else if (showDeleted === "true") {
-    // hepsi
-  } else {
-    where.deleted_at = null;
+const createWhereClause = (id: number, deleted_at: Date | null) => {
+  return{
+    id, deleted_at: deleted_at
   }
+}
 
-  return prisma.category.findMany({
-    where,
+
+export const  getAllCategories = async (showDeleted:string) => {
+
+  let whereClause:any = {};
+  if(showDeleted === SHOW_DELETED.TRUE){ }
+  else if (showDeleted === SHOW_DELETED.ONLY_DELETED){
+    whereClause.deleted_at = { not: null };
+  } else {
+    whereClause.deleted_at = null;  
+  }
+  
+   return prisma.category.findMany({
+    where: whereClause,
     select: {
       id: true,
       name: true,
-      created_at: true,
-      deleted_at: true,
     },
   });
-};
+  };
+
+
 
 export const createCategory = async (name: string) => {
   return prisma.category.create({
-    data: { name },
-    select: {
-      id: true,
-      name: true,
-    },
-  });
+    data: {
+      name,
+    },});
 };
 
-export const updateCategory = async (id: number, data: Partial<{ name: string }>) => {
-  return prisma.category.updateMany({
-    where: {
-      id,
-      deleted_at: null,
-    },
-    data,
-  });
-};
+
+
+export const updateCategory = async (id: number, data: object) => {
+  
+  return prisma.category.update({ where: createWhereClause(id, null),data});
+  }
 
 export const deleteCategory = async (id: number) => {
-  return prisma.category.updateMany({
-    where: {
-      id,
-      deleted_at: null,
-    },
-    data: {
-      deleted_at: new Date(),
-    },
-  });
-};
+
+    const data = {deleted_at: new Date()}
+  return prisma.category.update({where: createWhereClause(id, null),data})
+};  
 
 export const getCategoryById = async (id: number) => {
-  return prisma.category.findFirst({
-    where: {
-      id,
-      deleted_at: null,
-    },
-  });
+
+  return prisma.category.findUnique({
+    where: createWhereClause(id,null)})
+    
 };
+
